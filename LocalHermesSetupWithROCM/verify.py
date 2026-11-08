@@ -7,6 +7,26 @@ import subprocess
 import urllib.request
 
 
+def current_logs(invocation):
+    """Try existing journal permissions, then noninteractive sudo."""
+    command = ['journalctl', f'_SYSTEMD_INVOCATION_ID={invocation}',
+               '--no-pager', '-o', 'cat']
+    errors = []
+    for prefix in ([], ['sudo', '-n']):
+        try:
+            logs = subprocess.check_output(prefix + command, text=True,
+                                           errors='replace', stderr=subprocess.PIPE,
+                                           timeout=30)
+            if logs.strip() and logs.strip() != '-- No entries --':
+                return logs
+            errors.append('No readable entries for the current service invocation.')
+        except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+            errors.append((getattr(exc, 'stderr', '') or str(exc)).strip())
+    raise SystemExit('Cannot read current Ollama logs: ' + '; '.join(errors) +
+                     '\nRefresh sudo access with `sudo -v`, then rerun setup. '
+                     'ROCm verification has not passed.')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', required=True)
@@ -75,9 +95,7 @@ def main():
         ['systemctl', 'show', 'ollama.service', '--property=InvocationID', '--value'], text=True).strip()
     if not invocation:
         raise SystemExit('Cannot identify the current Ollama service invocation.')
-    logs = subprocess.check_output(
-        ['sudo', 'journalctl', f'_SYSTEMD_INVOCATION_ID={invocation}', '--no-pager', '-o', 'cat'],
-        text=True, errors='replace')
+    logs = current_logs(invocation)
     if 'library=ROCm' not in logs or 'ROCm0' not in logs:
         raise SystemExit('GPU allocation exists, but ROCm was not verified in current logs. Inspect journalctl -u ollama.')
     print(f"ROCm verified: {args.model}, GPU allocation {loaded[0]['size_vram'] / 2**30:.2f} GiB")

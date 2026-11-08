@@ -8,6 +8,8 @@ from pathlib import Path
 import shutil
 import stat
 import tempfile
+import urllib.request
+import urllib.error
 
 try:
     import yaml
@@ -88,6 +90,19 @@ def configure(home, models, default, context=65536, hermes_home=None, check_only
         raise ValueError(f'{ollama_path}: integrations.hermes must be an object')
     ordered = [default] + [name for name in models if name != default]
     integrations.setdefault('hermes', {})['models'] = ordered
+    providers = hermes.get('custom_providers', [])
+    if not isinstance(providers, list) or any(not isinstance(p, dict) for p in providers):
+        raise ValueError(f'{hermes_path}: custom_providers must be a list of mappings')
+    providers = [dict(p) for p in providers]
+    local = next((p for p in providers if p.get('name') == 'Local Ollama'
+                  and p.get('base_url', '').rstrip('/') == model['base_url']), None)
+    if local is None:
+        local = {'name': 'Local Ollama'}
+        providers.append(local)
+    local.update({'base_url': model['base_url'], 'api_key': 'ollama',
+                  'api_mode': 'chat_completions', 'model': default,
+                  'models': {name: {'context_length': context} for name in ordered}})
+    hermes['custom_providers'] = providers
     pending = {hermes_home / 'skins/white.yaml': white_skin,
                ollama_path: json.dumps(ollama, indent=2) + '\n',
                hermes_path: yaml.safe_dump(hermes, sort_keys=False, allow_unicode=True)}
@@ -132,6 +147,32 @@ esac
             save(path, text)
 
 
+def installed_models():
+    """Read the local server catalog; fall back to Arch's on-disk catalog."""
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        with opener.open('http://127.0.0.1:11434/api/tags', timeout=5) as response:
+            return [m['name'] for m in json.load(response).get('models', [])
+                    if isinstance(m.get('name'), str) and not m.get('remote_host')]
+    except (OSError, ValueError, urllib.error.URLError):
+        roots = [Path(os.environ.get('OLLAMA_MODELS', '/var/lib/ollama')),
+                 Path.home() / '.ollama/models']
+        names = []
+        for root in roots:
+            manifests = root / 'manifests'
+            for path in sorted(manifests.glob('*/*/*/*')):
+                if not path.is_file():
+                    continue
+                registry, namespace, model, tag = path.relative_to(manifests).parts
+                if tag == 'cloud':
+                    continue
+                name = ('' if namespace == 'library' else namespace + '/') + model + ':' + tag
+                if registry != 'registry.ollama.ai':
+                    name = registry + '/' + name
+                names.append(name)
+        return list(dict.fromkeys(names))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--home', type=Path, required=True)
@@ -139,8 +180,11 @@ def main():
     parser.add_argument('--default', required=True)
     parser.add_argument('--context', type=int, default=65536)
     parser.add_argument('--hermes-home', type=Path)
+    parser.add_argument('--discover-installed', action='store_true')
     parser.add_argument('--check-only', action='store_true')
     args = parser.parse_args()
+    if args.discover_installed:
+        args.models = list(dict.fromkeys(args.models + installed_models()))
     configure(args.home, args.models, args.default, args.context, args.hermes_home, args.check_only)
 
 

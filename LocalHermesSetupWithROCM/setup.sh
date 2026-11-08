@@ -76,7 +76,7 @@ export OLLAMA_HOST=127.0.0.1:11434
 configure_agents() {
   /usr/bin/python "$SCRIPT_DIR/configure.py" --home "$HOME" \
     --context "$CONTEXT_LENGTH" --hermes-home "${HERMES_HOME:-$HOME/.hermes}" \
-    --default "$DEFAULT_MODEL" --models "${MODELS[@]}" "$@"
+    --discover-installed --default "$DEFAULT_MODEL" --models "${MODELS[@]}" "$@"
 }
 
 if [[ "$MODE" == configure-only ]]; then

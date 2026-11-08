@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import subprocess
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -27,6 +28,24 @@ class VerificationTests(unittest.TestCase):
              contextlib.redirect_stdout(io.StringIO()):
             verify.main()
         return opener
+
+    def test_journal_access_falls_back_to_noninteractive_sudo(self):
+        denied = subprocess.CalledProcessError(1, ['journalctl'], stderr='Permission denied')
+        with patch('verify.subprocess.check_output', side_effect=[denied, 'library=ROCm ROCm0']) as read:
+            self.assertIn('ROCm', verify.current_logs('current'))
+        self.assertEqual(read.call_args_list[0].args[0][0], 'journalctl')
+        self.assertEqual(read.call_args_list[1].args[0][:2], ['sudo', '-n'])
+
+    def test_journal_failure_explains_recovery(self):
+        denied = subprocess.CalledProcessError(1, ['journalctl'], stderr='Permission denied')
+        with patch('verify.subprocess.check_output', side_effect=denied):
+            with self.assertRaisesRegex(SystemExit, 'sudo -v'):
+                verify.current_logs('current')
+
+    def test_empty_journal_is_not_verification(self):
+        with patch('verify.subprocess.check_output', return_value='-- No entries --'):
+            with self.assertRaisesRegex(SystemExit, 'has not passed'):
+                verify.current_logs('current')
 
     environment = ('OLLAMA_CONTEXT_LENGTH=65536 OLLAMA_KV_CACHE_TYPE=q8_0 '
                    'OLLAMA_FLASH_ATTENTION=1 OLLAMA_HOST=127.0.0.1:11434 '

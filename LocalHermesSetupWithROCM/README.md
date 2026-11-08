@@ -189,3 +189,17 @@ All setup modes that configure Hermes install `skins/white.yaml` into
 `$HERMES_HOME/skins` (default: `~/.hermes/skins`) and set `display.skin: white`.
 Existing changed files are backed up; other display settings are preserved.
 Restart Hermes to apply the theme.
+
+Installed Ollama models are discovered automatically when configuring Hermes and added
+to the **Local Ollama** model picker catalog alongside the models in `config.sh`.
+Discovery uses the local API, with an on-disk fallback for Arch installations.
+The white skin is installed and selected by default, including white logo, banner,
+text and borders. Apply these settings without reinstalling or restarting Ollama:
+
+```bash
+bash setup.sh --configure-only
+```
+
+Verification reads current-invocation logs directly, then tries `sudo -n`.
+If journal access is unavailable, it exits with a recovery message instead of a
+Python traceback; run `sudo -v` before rerunning verification or setup.
