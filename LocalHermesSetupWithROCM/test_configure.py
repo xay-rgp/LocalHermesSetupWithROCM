@@ -152,6 +152,24 @@ class ConfigurationTests(unittest.TestCase):
         configure(self.home, self.models, self.models[0], check_only=True)
         self.assertFalse(list(self.home.iterdir()))
 
+    def test_white_theme_install_preserves_display_and_backs_up_skin(self):
+        custom = self.home / 'custom-hermes'
+        self.write('custom-hermes/config.yaml', {
+            'display': {'skin': 'default', 'compact': True}})
+        self.write('custom-hermes/skins/white.yaml', {'name': 'previous'})
+        with contextlib.redirect_stdout(io.StringIO()):
+            configure(self.home, self.models, self.models[0], hermes_home=custom)
+        self.assertEqual(self.read('custom-hermes/config.yaml')['display'],
+                         {'skin': 'white', 'compact': True})
+        skin = self.read('custom-hermes/skins/white.yaml')
+        self.assertEqual(skin['name'], 'white')
+        for key in ('banner_logo', 'banner_hero'):
+            self.assertIn('#FFFFFF', skin[key])
+            self.assertNotRegex(skin[key], r'#(?!FFFFFF)[0-9A-Fa-f]{6}')
+        backup = next((custom / 'skins').glob('white.yaml.backup-*'))
+        self.assertEqual(yaml.safe_load(backup.read_text()), {'name': 'previous'})
+        self.assertFalse((self.home / '.hermes').exists())
+
     def test_late_symlink_fails_without_partial_writes(self):
         target = self.home / 'original'
         target.write_text('# original\n')
@@ -169,7 +187,7 @@ class ConfigurationTests(unittest.TestCase):
                 self.run_configuration()
             self.assertFalse((self.home / '.hermes').exists())
         (self.home / '.ollama/config.json').unlink()
-        for bad in ([], {'model': []}):
+        for bad in ([], {'model': []}, {'display': []}):
             self.write('.hermes/config.yaml', bad)
             with self.assertRaises(ValueError):
                 self.run_configuration()

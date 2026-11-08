@@ -7,8 +7,8 @@ it is not an Ubuntu, NVIDIA, macOS, or Windows installer.
 ## Run from Bash or Fish
 
 ```sh
-bash /home/xay/LocalHermesSetupWithROCM/setup.sh --dry-run
-bash /home/xay/LocalHermesSetupWithROCM/setup.sh
+bash /home/xay/LocalHermesSetupWithROCM/LocalHermesSetupWithROCM/setup.sh --dry-run
+bash /home/xay/LocalHermesSetupWithROCM/LocalHermesSetupWithROCM/setup.sh
 ```
 
 Run as your regular user, **not** `sudo bash`. The script requests sudo for
@@ -23,7 +23,8 @@ no paid API key is needed for local inference. Agent behavior depends on model
 tool support.
 
 Start Hermes in your project directory with `hermes`. The installer selects
-local Ollama and `DEFAULT_MODEL`. Use `/model MODEL` inside Hermes to select
+local Ollama, `DEFAULT_MODEL`, and the bundled white theme (including the ASCII
+logo and Hermes-Agent banner). Use `/model MODEL` inside Hermes to select
 another downloaded model, or `hermes config` to inspect settings. See the
 [official local Ollama guide](https://hermes-agent.nousresearch.com/docs/guides/local-ollama-setup).
 
@@ -70,7 +71,7 @@ Apply tuning to an existing installation without upgrades, model downloads,
 or agent reinstalls:
 
 ```sh
-bash /home/xay/LocalHermesSetupWithROCM/setup.sh --tune-only
+bash /home/xay/LocalHermesSetupWithROCM/LocalHermesSetupWithROCM/setup.sh --tune-only
 ```
 
 Finish active work first: this restarts Ollama, verifies default-model inference
@@ -150,7 +151,7 @@ installation or GPU execution.
 Offline development checks (no system changes):
 
 ```sh
-cd /home/xay/LocalHermesSetupWithROCM
+cd /home/xay/LocalHermesSetupWithROCM/LocalHermesSetupWithROCM
 bash -n setup.sh config.sh
 python -B -m unittest -v
 bash setup.sh --dry-run
@@ -181,3 +182,10 @@ Existing Hermes environment overrides (such as `CUSTOM_BASE_URL`), custom
 profiles, and auxiliary-provider settings can change runtime routing; this setup
 preserves those unrelated settings. The generated default model configuration
 targets local Ollama. Optional external tools may require their own services.
+
+## White theme
+
+All setup modes that configure Hermes install `skins/white.yaml` into
+`$HERMES_HOME/skins` (default: `~/.hermes/skins`) and set `display.skin: white`.
+Existing changed files are backed up; other display settings are preserved.
+Restart Hermes to apply the theme.

@@ -1,0 +1,92 @@
+# Hermes skin "white" — pure monochrome white, matching the all-white fastfetch
+# palette. No `background` key: the terminal supplies the surface, so the
+# transparent Kitty background stays transparent. Muted elements are light
+# grays (still white-family) for readability; status colors are soft tinted
+# whites so ok/warn/error stay distinguishable.
+
+name: white
+description: Monochrome white — pure white text like the fastfetch scheme, no painted background
+
+colors:
+  # Text hierarchy — all white-family.
+  banner_title: "#FFFFFF"   # headings / primary
+  banner_text: "#FFFFFF"    # body foreground
+  ui_text: "#FFFFFF"
+  ui_primary: "#FFFFFF"
+  ui_accent: "#FFFFFF"      # links, chevrons, headers, tool markers
+  ui_tool: "#FFFFFF"        # ● tool-call marker
+  ui_thinking: "#D9D9D9"
+  banner_accent: "#FFFFFF"
+  ui_label: "#E6E6E6"
+  banner_dim: "#A8A8A8"     # muted / secondary
+  banner_border: "#7A7A7A"
+  ui_border: "#7A7A7A"
+
+  # Prompt + chrome.
+  prompt: "#FFFFFF"
+  input_rule: "#B0B0B0"
+  response_border: "#CFCFCF"
+  shell_dollar: "#FFFFFF"
+
+  # Semantic status — soft tinted whites (readable, still white theme).
+  ui_ok: "#CDECCF"
+  ui_warn: "#F7E8C8"
+  ui_error: "#F5C9C9"
+
+  # Status bar — dark slab so the white text stands out on any wallpaper;
+  # on a transparent terminal Kitty tints it translucent.
+  status_bar_bg: "#303030"
+  status_bar_text: "#FFFFFF"
+  status_bar_strong: "#FFFFFF"
+  status_bar_dim: "#9A9A9A"
+  status_bar_good: "#CDECCF"
+  status_bar_warn: "#F7E8C8"
+  status_bar_bad: "#F5C9C9"
+  status_bar_critical: "#FFFFFF"
+  voice_status_bg: "#303030"
+
+  # Sessions / selection / completion menu.
+  session_label: "#E6E6E6"
+  session_border: "#7A7A7A"
+  selection_bg: "#555555"
+  completion_menu_bg: "#2A2A2A"
+  completion_menu_current_bg: "#4A4A4A"
+  completion_menu_meta_bg: "#2A2A2A"
+  completion_menu_meta_current_bg: "#4A4A4A"
+
+  # Diffs + code syntax — white ladder.
+  diff_added: "#D6F5D6"
+  diff_removed: "#F5D6D6"
+  diff_added_word: "#EAFBEA"
+  diff_removed_word: "#FBEAEA"
+  syntax_string: "#E0E0E0"
+  syntax_number: "#F0F0F0"
+  syntax_keyword: "#FFFFFF"
+  syntax_comment: "#9E9E9E"
+
+tool_prefix: "│"
+
+banner_logo: |-
+  [bold #FFFFFF]██╗  ██╗███████╗██████╗ ███╗   ███╗███████╗███████╗       █████╗  ██████╗ ███████╗███╗   ██╗████████╗[/]
+  [bold #FFFFFF]██║  ██║██╔════╝██╔══██╗████╗ ████║██╔════╝██╔════╝      ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝[/]
+  [#FFFFFF]███████║█████╗  ██████╔╝██╔████╔██║█████╗  ███████╗█████╗███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║[/]
+  [#FFFFFF]██╔══██║██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══╝  ╚════██║╚════╝██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║[/]
+  [#FFFFFF]██║  ██║███████╗██║  ██║██║ ╚═╝ ██║███████╗███████║      ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║[/]
+  [#FFFFFF]╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝[/]
+
+banner_hero: |-
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⣀⣀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣇⠸⣿⣿⠇⣸⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⢀⣠⣴⣶⠿⠋⣩⡿⣿⡿⠻⣿⡇⢠⡄⢸⣿⠟⢿⣿⢿⣍⠙⠿⣶⣦⣄⡀⠀[/]
+  [#FFFFFF]⠀⠀⠉⠉⠁⠶⠟⠋⠀⠉⠀⢀⣈⣁⡈⢁⣈⣁⡀⠀⠉⠀⠙⠻⠶⠈⠉⠉⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⣿⡿⠛⢁⡈⠛⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⣿⣦⣤⣈⠁⢠⣴⣿⠿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣦⡉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣦⣈⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣴⠦⠈⠙⠿⣦⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣤⡈⠁⢤⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠑⢶⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠁⢰⡆⠈⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⠈⣡⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+  [#FFFFFF]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]

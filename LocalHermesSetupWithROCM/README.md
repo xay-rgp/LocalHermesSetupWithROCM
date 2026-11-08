@@ -23,7 +23,8 @@ no paid API key is needed for local inference. Agent behavior depends on model
 tool support.
 
 Start Hermes in your project directory with `hermes`. The installer selects
-local Ollama and `DEFAULT_MODEL`. Use `/model MODEL` inside Hermes to select
+local Ollama, `DEFAULT_MODEL`, and the bundled white theme (including the ASCII
+logo and Hermes-Agent banner). Use `/model MODEL` inside Hermes to select
 another downloaded model, or `hermes config` to inspect settings. See the
 [official local Ollama guide](https://hermes-agent.nousresearch.com/docs/guides/local-ollama-setup).
 
@@ -181,3 +182,10 @@ Existing Hermes environment overrides (such as `CUSTOM_BASE_URL`), custom
 profiles, and auxiliary-provider settings can change runtime routing; this setup
 preserves those unrelated settings. The generated default model configuration
 targets local Ollama. Optional external tools may require their own services.
+
+## White theme
+
+All setup modes that configure Hermes install `skins/white.yaml` into
+`$HERMES_HOME/skins` (default: `~/.hermes/skins`) and set `display.skin: white`.
+Existing changed files are backed up; other display settings are preserved.
+Restart Hermes to apply the theme.

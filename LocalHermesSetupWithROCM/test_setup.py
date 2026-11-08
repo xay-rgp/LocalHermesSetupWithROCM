@@ -18,6 +18,7 @@ class SetupTests(unittest.TestCase):
         self.repo.mkdir()
         for name in ('setup.sh', 'config.sh', 'configure.py'):
             shutil.copy2(Path(__file__).parent / name, self.repo / name)
+        shutil.copytree(Path(__file__).parent / 'skins', self.repo / 'skins')
         (self.repo / 'verify.py').write_text(
             'import os, sys\nfrom pathlib import Path\n'
             'with open(os.environ["AUDIT_LOG"], "a") as f: f.write("verify\\n")\n'

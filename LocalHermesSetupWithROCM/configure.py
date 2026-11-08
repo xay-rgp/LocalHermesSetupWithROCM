@@ -76,6 +76,11 @@ def configure(home, models, default, context=65536, hermes_home=None, check_only
                   'api_key': 'ollama', 'api_mode': 'chat_completions',
                   'context_length': context})
     hermes['model'] = model
+    display = hermes.get('display', {})
+    if not isinstance(display, dict):
+        raise ValueError(f'{hermes_path}: display must be a mapping')
+    hermes['display'] = {**display, 'skin': 'white'}
+    white_skin = (Path(__file__).resolve().parent / 'skins/white.yaml').read_text()
     integrations = ollama.setdefault('integrations', {})
     if not isinstance(integrations, dict):
         raise ValueError(f'{ollama_path}: integrations must be an object')
@@ -83,7 +88,8 @@ def configure(home, models, default, context=65536, hermes_home=None, check_only
         raise ValueError(f'{ollama_path}: integrations.hermes must be an object')
     ordered = [default] + [name for name in models if name != default]
     integrations.setdefault('hermes', {})['models'] = ordered
-    pending = {ollama_path: json.dumps(ollama, indent=2) + '\n',
+    pending = {hermes_home / 'skins/white.yaml': white_skin,
+               ollama_path: json.dumps(ollama, indent=2) + '\n',
                hermes_path: yaml.safe_dump(hermes, sort_keys=False, allow_unicode=True)}
 
     # Avoid global API environment exports; configure each agent explicitly.
