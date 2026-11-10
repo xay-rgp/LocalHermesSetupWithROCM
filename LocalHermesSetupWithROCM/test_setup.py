@@ -32,6 +32,7 @@ class SetupTests(unittest.TestCase):
                         HERMES_HOME=str(self.home / '.hermes'),
                         PATH=f'{self.bin}:/usr/bin:/bin', AUDIT_LOG=str(self.log))
         self.stub('sudo', '''printf 'sudo %s\\n' "$*" >> "$AUDIT_LOG"
+if [[ "$1" == install && "$2" == -m && "$3" == 0644 ]]; then cat "$4" >> "$AUDIT_LOG"; fi
 if [[ "$1" == test ]]; then exit 1; fi
 if [[ "$1" == pacman && "${PACMAN_FAIL:-0}" == 1 ]]; then exit 1; fi
 ''')
@@ -93,6 +94,7 @@ exit 1
         self.assertEqual(calls.count('ollama pull '), 2)
         self.assertIn('hermes --version', calls)
         self.assertIn('verify', calls)
+        self.assertIn('Environment="ROCR_VISIBLE_DEVICES=GPU-4f3288ca66e47853"', calls)
         self.assertNotIn('cline', calls)
 
     @unittest.skipUnless(Path('/etc/arch-release').exists() and os.geteuid() != 0,
@@ -157,6 +159,17 @@ exit 1
                     self.assertNotIn('Setup complete.', result.stdout)
                 finally:
                     path.write_text(original)
+
+    def test_invalid_gpu_uuid_is_rejected_before_changes(self):
+        config = self.repo / 'config.sh'
+        original = config.read_text()
+        for value in ('', '0', 'GPU-XX', 'GPU-1234', 'GPU-4f3288ca66e47853%'):
+            with self.subTest(value=value):
+                config.write_text(original + f'\nROCM_GPU_UUID="{value}"\n')
+                result = self.run_setup('--dry-run')
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('ROCM_GPU_UUID', result.stderr)
+                self.assertEqual(self.calls(), '')
 
     def test_zero_keep_alive_is_rejected_before_changes(self):
         with (self.repo / 'config.sh').open('a') as f:

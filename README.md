@@ -189,3 +189,30 @@ All setup modes that configure Hermes install `skins/white.yaml` into
 `$HERMES_HOME/skins` (default: `~/.hermes/skins`) and set `display.skin: white`.
 Existing changed files are backed up; other display settings are preserved.
 Restart Hermes to apply the theme.
+
+## Select the RX 9060 XT
+
+`config.sh` sets `ROCM_GPU_UUID="GPU-4f3288ca66e47853"` for this machine's
+RX 9060 XT. Install and `--tune-only` modes write it as
+`ROCR_VISIBLE_DEVICES` in the managed Ollama systemd drop-in, so Ollama's ROCm
+runtime sees only that GPU. CPU offloading can still occur when VRAM is full.
+On another machine, replace this UUID with the desired GPU's `Uuid` from
+`sudo -u ollama /opt/rocm/bin/rocminfo` before running setup.
+
+From the repository root, apply without reinstalling or downloading models:
+
+```sh
+bash LocalHermesSetupWithROCM/setup.sh --tune-only
+```
+
+This restarts Ollama and verifies the effective GPU selection, GPU allocation,
+and configured context before updating Hermes. `--configure-only` does not
+apply GPU selection. Existing later overrides (including a manually created
+`zz-rx9060xt.conf`) are preserved; verification rejects a conflicting UUID.
+Update such an override as well if you change the selected GPU.
+
+UUID selection does not guarantee that live GPU detachment for VM passthrough
+will leave ROCm healthy. If `rocminfo` fails after passthrough and kernel logs
+show GPU reset failures, save work and reboot before retesting with the VM off.
+The successful 4K-context smoke test does not establish performance at the
+configured 64K context; setup verifies inference at the configured context.

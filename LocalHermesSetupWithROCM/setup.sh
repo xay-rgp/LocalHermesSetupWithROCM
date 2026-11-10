@@ -38,6 +38,10 @@ done
 }
 [[ "$KEEP_ALIVE" =~ ^[1-9][0-9]*[smh]$ ]] || { echo 'KEEP_ALIVE must be a positive duration like 10m or 1h so the model stays loaded for verification.' >&2; exit 2; }
 
+[[ "${ROCM_GPU_UUID:-}" =~ ^GPU-[[:xdigit:]]{16}$ ]] || {
+  echo 'ROCM_GPU_UUID must be a GPU UUID from rocminfo, e.g. GPU-4f3288ca66e47853.' >&2; exit 2;
+}
+
 [[ "$FLASH_ATTENTION" == 1 || "$FLASH_ATTENTION" == 0 ]] || { echo 'FLASH_ATTENTION must be 0 or 1.' >&2; exit 2; }
 [[ "$KV_CACHE_TYPE" == f16 || "$KV_CACHE_TYPE" == q8_0 || "$KV_CACHE_TYPE" == q4_0 ]] || { echo 'Invalid KV_CACHE_TYPE.' >&2; exit 2; }
 [[ "$KV_CACHE_TYPE" == f16 || "$FLASH_ATTENTION" == 1 ]] || { echo 'Quantized KV cache requires Flash Attention.' >&2; exit 2; }
@@ -54,6 +58,7 @@ Target: Arch Linux x86_64 with an AMD ROCm-supported GPU.
 2. Write a backed-up systemd drop-in: ROCm only, context=$CONTEXT_LENGTH,
    one parallel request, one loaded model, keep-alive=$KEEP_ALIVE,
    Flash Attention=$FLASH_ATTENTION, KV cache=$KV_CACHE_TYPE.
+   Restrict ROCm to GPU UUID=$ROCM_GPU_UUID (exclude the iGPU).
    Enable and restart ollama.service (interrupts active generations).
 3. Pull these models (existing downloads are reused):
 PLAN
@@ -111,6 +116,7 @@ cat > "$temp_dir/ollama.conf" <<CONF
 [Service]
 Environment="OLLAMA_HOST=127.0.0.1:11434"
 Environment="OLLAMA_VULKAN=0"
+Environment="ROCR_VISIBLE_DEVICES=$ROCM_GPU_UUID"
 Environment="OLLAMA_CONTEXT_LENGTH=$CONTEXT_LENGTH"
 Environment="OLLAMA_NUM_PARALLEL=1"
 Environment="OLLAMA_MAX_LOADED_MODELS=1"
@@ -141,7 +147,8 @@ done
 if [[ "$MODE" == tune-only ]]; then
   # Verify the service before updating the agent settings.
   /usr/bin/python "$SCRIPT_DIR/verify.py" --model "$DEFAULT_MODEL" --context "$CONTEXT_LENGTH" \
-    --kv-cache "$KV_CACHE_TYPE" --flash-attention "$FLASH_ATTENTION"
+    --kv-cache "$KV_CACHE_TYPE" --flash-attention "$FLASH_ATTENTION" \
+    --gpu-uuid "$ROCM_GPU_UUID"
   configure_agents
   echo 'Tuning applied. Restart Hermes; start a new session after changing context limits.'
   exit 0
@@ -160,7 +167,8 @@ echo 'Checking the installed programs, models and GPU inference...'
 hermes --version
 ollama list
 /usr/bin/python "$SCRIPT_DIR/verify.py" --model "$DEFAULT_MODEL" --context "$CONTEXT_LENGTH" \
-    --kv-cache "$KV_CACHE_TYPE" --flash-attention "$FLASH_ATTENTION"
+    --kv-cache "$KV_CACHE_TYPE" --flash-attention "$FLASH_ATTENTION" \
+    --gpu-uuid "$ROCM_GPU_UUID"
 # Publish matching agent settings only after the server passes verification.
 configure_agents
 echo 'Setup complete. Open a new terminal and run hermes in your project directory.'

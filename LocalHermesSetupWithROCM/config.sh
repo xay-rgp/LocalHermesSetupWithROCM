@@ -12,6 +12,9 @@ DEFAULT_MODEL="${MODELS[0]}"
 # 64K balances agent startup/tool context against VRAM on a 16 GB card.
 # Larger values increase cache memory and CPU offload.
 CONTEXT_LENGTH=65536
+# Only expose this RX 9060 XT to Ollama. On another machine, replace the UUID
+# with its GPU's Uuid from: sudo -u ollama /opt/rocm/bin/rocminfo
+ROCM_GPU_UUID="GPU-4f3288ca66e47853"
 KEEP_ALIVE="10m"
 FLASH_ATTENTION=1
 KV_CACHE_TYPE="q8_0"  # roughly half the f16 KV memory; use f16 if quality regresses

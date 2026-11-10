@@ -30,6 +30,7 @@ def current_logs(invocation):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', required=True)
+    parser.add_argument('--gpu-uuid', help='Expected ROCR_VISIBLE_DEVICES GPU UUID')
     parser.add_argument('--context', type=int, required=True)
     parser.add_argument('--kv-cache', choices=['f16', 'q8_0', 'q4_0'])
     parser.add_argument('--flash-attention', choices=['0', '1'])
@@ -59,6 +60,8 @@ def main():
         'OLLAMA_NUM_PARALLEL': '1',
         'OLLAMA_MAX_LOADED_MODELS': '1',
     }
+    if args.gpu_uuid is not None:
+        expected['ROCR_VISIBLE_DEVICES'] = args.gpu_uuid
     if args.kv_cache is not None:
         expected['OLLAMA_KV_CACHE_TYPE'] = args.kv_cache
     if args.flash_attention is not None:
