@@ -54,7 +54,8 @@ if [[ "$MODE" == dry-run ]]; then
   cat <<PLAN
 Target: Arch Linux x86_64 with an AMD ROCm-supported GPU.
 1. Run a normal full Arch upgrade and install ollama, ollama-rocm,
-   git, curl, tar, python, python-yaml (sudo pacman -Syu --needed ...).
+   git, curl, tar, python, python-yaml, ttf-jetbrains-mono-nerd,
+   noto-fonts, noto-fonts-emoji (sudo pacman -Syu --needed ...).
 2. Write a backed-up systemd drop-in: ROCm only, context=$CONTEXT_LENGTH,
    one parallel request, one loaded model, keep-alive=$KEEP_ALIVE,
    Flash Attention=$FLASH_ATTENTION, KV cache=$KV_CACHE_TYPE.
@@ -101,7 +102,8 @@ trap 'echo "Setup stopped at line $LINENO. Fix the reported error and rerun; com
 
 if [[ "$MODE" == install ]]; then
   echo 'Installing system packages with a full Arch upgrade (pacman will show its normal confirmation)...'
-  sudo pacman -Syu --needed ollama ollama-rocm git curl tar python python-yaml
+  sudo pacman -Syu --needed ollama ollama-rocm git curl tar python python-yaml \
+    ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
 
 fi
 
@@ -171,4 +173,5 @@ ollama list
     --gpu-uuid "$ROCM_GPU_UUID"
 # Publish matching agent settings only after the server passes verification.
 configure_agents
-echo 'Setup complete. Open a new terminal and run hermes in your project directory.'
+echo 'Setup complete. Select JetBrainsMono Nerd Font Mono in your terminal font settings.'
+echo 'Restart your terminal and run hermes in your project directory.'
